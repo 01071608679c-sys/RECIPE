@@ -1,0 +1,800 @@
+<title>달자의 레시피</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F9C7A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap">
+
+<style>
+  :root{
+    --bg:#FBF6EE; --card:#FFFFFF; --ink:#33291F; --dim:#8B7A66; --line:#EADFCF;
+    --mint:#1F9C7A; --mint-soft:#DDF0E9; --carrot:#D9822B; --carrot-soft:#FBEBD6;
+    --danger:#C4453A; --shadow:0 2px 10px rgba(90,70,45,.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17120E; --card:#221B15; --ink:#F2E8DB; --dim:#A99781; --line:#372C22;
+      --mint:#46C6A2; --mint-soft:#12332B; --carrot:#F0AC5A; --carrot-soft:#33240F;
+      --danger:#E4776B; --shadow:0 2px 12px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17120E; --card:#221B15; --ink:#F2E8DB; --dim:#A99781; --line:#372C22;
+    --mint:#46C6A2; --mint-soft:#12332B; --carrot:#F0AC5A; --carrot-soft:#33240F;
+    --danger:#E4776B; --shadow:0 2px 12px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Gowun Dodum","Malgun Gothic",system-ui,sans-serif;
+    font-size:16px; line-height:1.7;
+  }
+  .app{
+    max-width:560px; margin:0 auto; min-height:100%;
+    padding:0 18px calc(28px + env(safe-area-inset-bottom));
+  }
+  .screen{display:none}
+  .screen.on{display:block}
+
+  /* ── 위쪽 막대 ── */
+  .bar{
+    display:flex; align-items:center; gap:10px; padding:14px 0 10px;
+    position:sticky; top:0; background:var(--bg); z-index:5;
+  }
+  .bar .back{
+    background:var(--card); border:1px solid var(--line); color:var(--ink);
+    width:38px; height:38px; border-radius:12px; font-size:19px; cursor:pointer; flex:0 0 auto;
+  }
+  .bar h2{
+    font-family:"Gaegu",cursive; font-weight:700; font-size:25px; margin:0; flex:1; line-height:1.2;
+  }
+
+  /* ── 첫 화면 ── */
+  .hero{padding:34px 0 6px; text-align:center}
+  .hero h1{
+    font-family:"Gaegu",cursive; font-weight:700; margin:0;
+    font-size:clamp(40px,12vw,56px); line-height:1.05; color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .hero h1 .mint{color:var(--mint)}
+  .hero .sub{
+    color:var(--dim); font-size:14px; margin:6px 0 0;
+    font-family:"Gaegu",cursive; font-size:19px;
+  }
+  .tools{display:flex; justify-content:center; gap:16px; margin:16px 0 26px; color:var(--mint)}
+  .tools svg{opacity:.75}
+  .tools svg:nth-child(2){opacity:.95}
+
+  .menu{display:flex; flex-direction:column; gap:12px}
+  .item{
+    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:17px 18px; cursor:pointer; box-shadow:var(--shadow);
+    font:inherit; color:inherit; transition:transform .08s;
+  }
+  .item:active{transform:scale(.985)}
+  .item .no{
+    flex:0 0 auto; width:38px; height:38px; border-radius:12px;
+    background:var(--mint-soft); color:var(--mint);
+    display:grid; place-items:center; font-family:"Gaegu",cursive; font-size:22px; font-weight:700;
+  }
+  .item .tx{flex:1; min-width:0}
+  .item .tx b{display:block; font-size:18px; font-family:"Gaegu",cursive; font-weight:700; line-height:1.4}
+  .item .tx span{display:block; color:var(--dim); font-size:13px; line-height:1.5}
+  .item .go{color:var(--dim); font-size:18px}
+
+  .tiny{
+    display:flex; gap:14px; justify-content:center; margin-top:26px;
+    color:var(--dim); font-size:12.5px; flex-wrap:wrap;
+  }
+  .tiny button{background:none; border:0; color:var(--dim); font:inherit; text-decoration:underline; cursor:pointer; padding:2px}
+
+  /* ── 입력 ── */
+  label.f{display:block; margin:18px 0 6px; font-family:"Gaegu",cursive; font-weight:700; font-size:19px}
+  label.f .hint{font-family:"Gowun Dodum",sans-serif; font-weight:400; color:var(--dim); font-size:12.5px; margin-left:6px}
+  input[type=text], textarea{
+    width:100%; background:var(--card); color:var(--ink);
+    border:1px solid var(--line); border-radius:14px; padding:12px 14px;
+    font:inherit; line-height:1.75; box-shadow:var(--shadow);
+  }
+  input[type=text]:focus, textarea:focus{outline:2px solid var(--mint); outline-offset:1px; border-color:transparent}
+  textarea{min-height:120px; resize:vertical}
+  textarea.tall{min-height:170px}
+
+  .btn{
+    font-family:"Gaegu",cursive; font-weight:700; font-size:20px; cursor:pointer;
+    background:var(--mint); color:#fff; border:0; border-radius:15px; padding:13px 20px;
+    width:100%; box-shadow:var(--shadow);
+  }
+  .btn:active{filter:brightness(.95)}
+  .btn.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line)}
+  .btn.warn{background:var(--card); color:var(--danger); border:1px solid var(--line)}
+  .btn.small{font-size:17px; padding:10px 16px}
+  .row{display:flex; gap:9px; margin-top:12px}
+  .row .btn{width:auto; flex:1}
+
+  /* ── 사진 ── */
+  .shots{display:flex; gap:9px; flex-wrap:wrap; margin-top:8px}
+  .shot{
+    position:relative; width:78px; height:78px; border-radius:13px; overflow:hidden;
+    border:1px solid var(--line); background:var(--card);
+  }
+  .shot img{width:100%; height:100%; object-fit:cover; display:block}
+  .shot button{
+    position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%;
+    background:rgba(0,0,0,.55); color:#fff; border:0; font-size:13px; line-height:1; cursor:pointer;
+  }
+  .addshot{
+    width:78px; height:78px; border-radius:13px; border:1.5px dashed var(--line);
+    background:none; color:var(--dim); font-size:26px; cursor:pointer;
+  }
+
+  /* ── 목록 ── */
+  .search{margin:4px 0 14px}
+  .cards{display:flex; flex-direction:column; gap:11px}
+  .rc{
+    display:flex; gap:13px; align-items:center; width:100%; text-align:left;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:11px; cursor:pointer; font:inherit; color:inherit; box-shadow:var(--shadow);
+  }
+  .rc:active{transform:scale(.99)}
+  .rc .th{
+    flex:0 0 auto; width:60px; height:60px; border-radius:12px; overflow:hidden;
+    background:var(--mint-soft); display:grid; place-items:center; color:var(--mint); font-size:24px;
+  }
+  .rc .th img{width:100%; height:100%; object-fit:cover}
+  .rc .tx{flex:1; min-width:0}
+  .rc .tx b{display:block; font-family:"Gaegu",cursive; font-weight:700; font-size:19px; line-height:1.35}
+  .rc .tx span{
+    display:block; color:var(--dim); font-size:12.5px; line-height:1.5;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .empty{
+    text-align:center; color:var(--dim); padding:52px 20px; font-family:"Gaegu",cursive; font-size:20px;
+  }
+
+  /* ── 상세 보기 ── */
+  .gal{display:flex; gap:9px; overflow-x:auto; padding-bottom:4px; margin-bottom:6px}
+  .gal img{height:170px; border-radius:14px; border:1px solid var(--line); flex:0 0 auto}
+  .sec{margin-top:20px}
+  .sec h3{
+    display:inline-block; margin:0 0 8px; font-family:"Gaegu",cursive; font-weight:700; font-size:19px;
+    background:var(--mint-soft); color:var(--mint); border-radius:9px; padding:2px 11px;
+  }
+  .sec.note h3{background:var(--carrot-soft); color:var(--carrot)}
+  .sec .body{
+    white-space:pre-wrap; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:13px 15px; box-shadow:var(--shadow);
+  }
+  .meta{color:var(--dim); font-size:12.5px; margin:2px 0 14px}
+
+  /* ── 덮개 ── */
+  .veil{
+    position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    background:rgba(20,14,8,.55); padding:24px;
+  }
+  .veil[hidden]{display:none}
+  .sheet{
+    background:var(--card); border-radius:20px; padding:22px; width:100%; max-width:340px;
+    text-align:center; box-shadow:0 18px 50px rgba(0,0,0,.3);
+  }
+  .sheet h4{font-family:"Gaegu",cursive; font-weight:700; font-size:22px; margin:0 0 6px}
+  .sheet p{margin:0 0 14px; color:var(--dim); font-size:13.5px; line-height:1.7}
+  .prog{height:8px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:12px}
+  .prog i{display:block; height:100%; width:0; background:var(--mint); transition:width .2s}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+
+<div class="app">
+
+<!-- ═══════ 첫 화면 ═══════ -->
+<section class="screen on" id="s-home">
+  <div class="hero">
+    <h1>달자의<br><span class="mint">레시피</span></h1>
+    <p class="sub">모아두면 언젠가 다 쓰인다</p>
+  </div>
+  <div class="tools">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 10h16v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2 8h20"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1.2"/>
+    </svg>
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v9"/><path d="M12 12c-3 1.4-4 5-2.6 7.4 1.3 2.2 3.9 2.2 5.2 0C16 17 15 13.4 12 12z"/><path d="M9.6 13.2c1.6 2 3.2 4 4.8 5.6"/>
+    </svg>
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 4v9a4 4 0 0 0 8 0V4"/><path d="M9 13v7"/><path d="M18 4c1.5 3 1.5 6 0 9v7"/>
+    </svg>
+  </div>
+
+  <div class="menu">
+    <button class="item" data-go="reg"><span class="no">1</span>
+      <span class="tx"><b>레시피 등록</b><span>사진에서 글씨를 읽거나 직접 적어서</span></span><span class="go">›</span></button>
+    <button class="item" data-go="view"><span class="no">2</span>
+      <span class="tx"><b>레시피 보기</b><span id="cnt">모아둔 레시피 펼쳐보기</span></span><span class="go">›</span></button>
+    <button class="item" data-go="edit"><span class="no">3</span>
+      <span class="tx"><b>레시피 수정</b><span>고치거나 지우기</span></span><span class="go">›</span></button>
+  </div>
+
+  <div class="tiny">
+    <button id="b-out">백업 파일 내보내기</button>
+    <button id="b-in">백업 불러오기</button>
+  </div>
+</section>
+
+<!-- ═══════ 등록 방법 고르기 ═══════ -->
+<section class="screen" id="s-pick">
+  <div class="bar"><button class="back" data-home>‹</button><h2>어떻게 등록할까요</h2></div>
+  <div class="menu">
+    <button class="item" id="p-photo"><span class="no">1</span>
+      <span class="tx"><b>사진으로 등록</b><span>최대 5장 · 사진 속 글씨를 읽어 항목별로 나눠줍니다</span></span><span class="go">›</span></button>
+    <button class="item" id="p-hand"><span class="no">2</span>
+      <span class="tx"><b>직접 입력</b><span>메뉴명 · 재료 · 조리방법 · 주의사항을 적기</span></span><span class="go">›</span></button>
+  </div>
+</section>
+
+<!-- ═══════ 적기 / 고치기 ═══════ -->
+<section class="screen" id="s-edit">
+  <div class="bar"><button class="back" data-back>‹</button><h2 id="e-title">레시피 등록</h2></div>
+
+  <label class="f">사진 <span class="hint">최대 5장</span></label>
+  <div class="shots" id="e-shots"></div>
+  <input type="file" id="e-file" accept="image/*" multiple hidden>
+  <div class="row" id="e-ocrrow" hidden>
+    <button class="btn ghost small" id="e-ocr">사진에서 글씨 읽기</button>
+  </div>
+
+  <label class="f">메뉴명</label>
+  <input type="text" id="e-name" placeholder="예: 돼지고기 김치찌개">
+
+  <label class="f">재료</label>
+  <textarea id="e-ing" placeholder="예:&#10;돼지고기 목살 300g&#10;신김치 1/4포기&#10;두부 반 모"></textarea>
+
+  <label class="f">조리방법</label>
+  <textarea id="e-step" class="tall" placeholder="예:&#10;1. 김치를 볶는다&#10;2. 물을 붓고 끓인다"></textarea>
+
+  <label class="f">주의사항 <span class="hint">없으면 비워두세요</span></label>
+  <textarea id="e-note" placeholder="예: 김치가 시지 않으면 설탕 조금"></textarea>
+
+  <div class="row">
+    <button class="btn ghost" data-back>취소</button>
+    <button class="btn" id="e-save">저장</button>
+  </div>
+</section>
+
+<!-- ═══════ 목록 ═══════ -->
+<section class="screen" id="s-list">
+  <div class="bar"><button class="back" data-home>‹</button><h2 id="l-title">레시피 보기</h2></div>
+  <div class="search"><input type="text" id="l-q" placeholder="메뉴명이나 재료로 찾기"></div>
+  <div class="cards" id="l-cards"></div>
+</section>
+
+<!-- ═══════ 상세 ═══════ -->
+<section class="screen" id="s-view">
+  <div class="bar"><button class="back" data-back>‹</button><h2 id="v-name">　</h2></div>
+  <div class="meta" id="v-meta"></div>
+  <div class="gal" id="v-gal"></div>
+  <div id="v-secs"></div>
+  <div class="row"><button class="btn ghost" id="v-edit">수정</button><button class="btn" id="v-img">사진으로 저장</button></div>
+  <div class="row"><button class="btn warn" id="v-del">이 레시피 지우기</button></div>
+</section>
+
+</div>
+
+<div class="veil" id="veil" hidden>
+  <div class="sheet">
+    <h4 id="k-title">글씨 읽는 중</h4>
+    <p id="k-text">잠시만요…</p>
+    <div class="prog"><i id="k-bar"></i></div>
+    <button class="btn ghost small" id="k-close" hidden>닫기</button>
+  </div>
+</div>
+
+<input type="file" id="in-file" accept="application/json" hidden>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+
+/* ═══════════ 1. 저장소 (폰 안에 보관) ═══════════ */
+const DB = 'dalza-recipe', STORE = 'recipes';
+let _db = null;
+function db(){
+  if (_db) return Promise.resolve(_db);
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+    r.onsuccess = () => { _db = r.result; res(_db); };
+    r.onerror = () => rej(r.error);
+  });
+}
+function tx(mode, fn){
+  return db().then((d) => new Promise((res, rej) => {
+    const t = d.transaction(STORE, mode), s = t.objectStore(STORE);
+    const out = fn(s);
+    t.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+    t.onerror = () => rej(t.error);
+  }));
+}
+const putRec  = (r) => tx('readwrite', (s) => s.put(r));
+const delRec  = (id) => tx('readwrite', (s) => s.delete(id));
+const allRecs = () => tx('readonly', (s) => s.getAll());
+const getRec  = (id) => tx('readonly', (s) => s.get(id));
+
+/* ═══════════ 2. 화면 넘기기 ═══════════ */
+let stack = ['s-home'];
+function show(id){
+  document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id));
+  window.scrollTo(0, 0);
+}
+function go(id){ stack.push(id); show(id); }
+function back(){
+  if (stack.length > 1) stack.pop();
+  show(stack[stack.length - 1]);
+}
+function home(){ stack = ['s-home']; show('s-home'); refreshCount(); }
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-home]')) home();
+  else if (e.target.closest('[data-back]')) back();
+});
+
+document.querySelectorAll('[data-go]').forEach((b) => {
+  b.onclick = () => {
+    const k = b.dataset.go;
+    if (k === 'reg') go('s-pick');
+    else openList(k === 'view' ? 'view' : 'edit');
+  };
+});
+
+/* ═══════════ 3. 적기 화면 ═══════════ */
+let cur = null;            /* 지금 편집 중인 레시피 */
+let shots = [];            /* [{blob, url}] */
+
+function blankRec(){
+  return { id: 'r' + Date.now() + Math.random().toString(36).slice(2, 6),
+           name: '', ing: '', step: '', note: '', photos: [],
+           made: Date.now(), fixed: Date.now() };
+}
+
+function openEdit(rec, startPhoto){
+  cur = rec ? JSON.parse(JSON.stringify({ ...rec, photos: [] })) : blankRec();
+  if (rec) cur.photos = rec.photos || [];
+  shots.forEach((s) => URL.revokeObjectURL(s.url));
+  shots = (cur.photos || []).map((b) => ({ blob: b, url: URL.createObjectURL(b) }));
+  $('e-title').textContent = rec ? '레시피 수정' : '레시피 등록';
+  $('e-name').value = cur.name || '';
+  $('e-ing').value = cur.ing || '';
+  $('e-step').value = cur.step || '';
+  $('e-note').value = cur.note || '';
+  drawShots();
+  go('s-edit');
+  if (startPhoto) setTimeout(() => $('e-file').click(), 250);
+}
+
+function drawShots(){
+  const box = $('e-shots');
+  box.innerHTML = '';
+  shots.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'shot';
+    d.innerHTML = '<img alt="">' + '<button aria-label="사진 빼기">×</button>';
+    d.querySelector('img').src = s.url;
+    d.querySelector('button').onclick = () => {
+      URL.revokeObjectURL(s.url); shots.splice(i, 1); drawShots();
+    };
+    box.appendChild(d);
+  });
+  if (shots.length < 5){
+    const a = document.createElement('button');
+    a.className = 'addshot'; a.textContent = '+';
+    a.onclick = () => $('e-file').click();
+    box.appendChild(a);
+  }
+  $('e-ocrrow').hidden = shots.length === 0;
+}
+
+/* 사진은 크기를 줄여서 담는다 */
+async function shrink(file){
+  try {
+    const img = await createImageBitmap(file);
+    const k = Math.min(1, 1400 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.82));
+  } catch (e) { return file; }
+}
+
+$('e-file').onchange = async (e) => {
+  const files = [...e.target.files].slice(0, 5 - shots.length);
+  for (const f of files){
+    const b = await shrink(f);
+    shots.push({ blob: b, url: URL.createObjectURL(b) });
+  }
+  e.target.value = '';
+  drawShots();
+};
+
+$('e-save').onclick = async () => {
+  const name = $('e-name').value.trim();
+  if (!name){ alert('메뉴명을 적어주세요.'); $('e-name').focus(); return; }
+  cur.name = name;
+  cur.ing = $('e-ing').value.trim();
+  cur.step = $('e-step').value.trim();
+  cur.note = $('e-note').value.trim();
+  cur.photos = shots.map((s) => s.blob);
+  cur.fixed = Date.now();
+  await putRec(cur);
+  alert('저장했습니다.');
+  const saved = cur.id;
+  stack = ['s-home'];
+  await openView(saved);
+};
+
+/* ═══════════ 4. 사진에서 글씨 읽기 ═══════════ */
+function veil(title, text, pct, closable){
+  $('veil').hidden = false;
+  $('k-title').textContent = title;
+  $('k-text').innerHTML = text;
+  $('k-bar').style.width = (pct === null ? 0 : pct) + '%';
+  $('k-close').hidden = !closable;
+}
+$('k-close').onclick = () => { $('veil').hidden = true; };
+
+let TESS = null;
+async function loadTess(){
+  if (window.Tesseract) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+$('e-ocr').onclick = async () => {
+  if (!shots.length) return;
+  let nowLabel = '';
+  try {
+    veil('준비 중', '글씨를 읽는 도구를 내려받고 있습니다.<br>처음 한 번만 시간이 걸립니다.', 3, false);
+    await loadTess();
+    if (!TESS) TESS = await Tesseract.createWorker('kor', 1, {
+      logger: (m) => {
+        if (m.status === 'recognizing text') veil('글씨 읽는 중', nowLabel, 10 + m.progress * 85, false);
+      },
+    });
+  } catch (err) {
+    veil('안 되네요', '글씨 읽는 도구를 못 불러왔습니다.<br>인터넷 연결을 확인해 주세요.<br>직접 입력은 그대로 됩니다.', 0, true);
+    return;
+  }
+
+  const texts = [];
+  for (let i = 0; i < shots.length; i++){
+    nowLabel = `${i + 1}번째 사진 (${shots.length}장 중)`;
+    veil('글씨 읽는 중', nowLabel, 10 + (i / shots.length) * 85, false);
+    try {
+      const { data } = await TESS.recognize(shots[i].blob);
+      if (data && data.text) texts.push(data.text);
+    } catch (e) { /* 한 장 실패해도 계속 */ }
+  }
+
+  const raw = texts.join('\n');
+  if (!raw.trim()){
+    veil('글씨를 못 찾았습니다', '사진이 흐리거나 손글씨면 잘 안 읽힙니다.<br>구글 렌즈로 복사해서 붙여넣으셔도 됩니다.', 0, true);
+    return;
+  }
+  const got = classify(raw);
+  const add = (el, v) => { if (!v) return; el.value = el.value ? el.value + '\n' + v : v; };
+  if (!$('e-name').value.trim() && got.name) $('e-name').value = got.name;
+  add($('e-ing'), got.ing); add($('e-step'), got.step); add($('e-note'), got.note);
+  veil('다 읽었습니다', '항목별로 나눠 넣었습니다.<br><b>틀린 곳은 직접 고쳐주세요.</b>', 100, true);
+};
+
+/* ── 읽은 글을 항목별로 나누기 ── */
+const H_ING  = /^\s*[\[\(【<]?\s*(주?재\s*료|부재료|양\s*념(장|류)?|소\s*스|재료\s*준비)\s*[\]\)】>]?\s*[:：]?\s*$/;
+const H_STEP = /^\s*[\[\(【<]?\s*(조\s*리\s*(방\s*법|법|순서|과정)|만드는\s*(법|방법)|레시피|순\s*서|과\s*정)\s*[\]\)】>]?\s*[:：]?\s*$/;
+const H_NOTE = /^\s*[\[\(【<]?\s*(주\s*의\s*사?\s*항?|주의|팁|TIP|포인트|참고|비법)\s*[\]\)】>]?\s*[:：]?\s*$/i;
+const UNIT   = /(\d+\s*(g|kg|ml|mL|L|리터|컵|큰\s*술|작은\s*술|스푼|T|t|개|알|장|쪽|줌|봉지|봉|캔|마리|모|단|뿌리|톨|조각|cc|스틱))|(약간|조금|적당량|한\s*줌|½|¼)/;
+const STEPNO = /^\s*(\d{1,2}\s*[.)\]]|[①-⑳]|[❶-❿]|[-–•*▶]|단계\s*\d)/;
+const NOTEW  = /(주의|조심|팁|포인트|참고|※|추천|대신)/;
+const VERB   = /(다|요|세요|자|고|서|면|기|여|줘|둔다|한다)\s*[.!]?$/;
+
+function classify(raw){
+  const lines = raw.split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const out = { name: '', ing: [], step: [], note: [] };
+  let bucket = null;
+
+  for (let line of lines){
+    /* 「재료 : 돼지고기 300g」 처럼 한 줄에 붙어 있으면 잘라낸다 */
+    const m = line.match(/^([^:：]{1,12})[:：]\s*(.+)$/);
+    if (m){
+      const head = m[1] + ' ';
+      if (H_ING.test(head)) { bucket = 'ing'; line = m[2]; }
+      else if (H_STEP.test(head)) { bucket = 'step'; line = m[2]; }
+      else if (H_NOTE.test(head)) { bucket = 'note'; line = m[2]; }
+    }
+    if (H_ING.test(line))  { bucket = 'ing';  continue; }
+    if (H_STEP.test(line)) { bucket = 'step'; continue; }
+    if (H_NOTE.test(line)) { bucket = 'note'; continue; }
+
+    if (bucket){ out[bucket].push(line); continue; }
+
+    /* 머리말이 없으면 줄 생김새로 짐작한다 */
+    if (!out.name && line.length <= 24 && !UNIT.test(line) && !STEPNO.test(line)){
+      out.name = line.replace(/\s*(레시피|만들기|만드는\s*법)\s*$/, '').trim();
+      continue;
+    }
+    if (NOTEW.test(line) && line.length < 60) out.note.push(line);
+    else if (STEPNO.test(line) || (line.length > 14 && VERB.test(line))) out.step.push(line);
+    else if (UNIT.test(line) || line.length <= 14) out.ing.push(line);
+    else out.step.push(line);
+  }
+  return { name: out.name, ing: out.ing.join('\n'), step: out.step.join('\n'), note: out.note.join('\n') };
+}
+
+/* ═══════════ 5. 목록 ═══════════ */
+let listMode = 'view', cache = [];
+async function openList(mode){
+  listMode = mode;
+  $('l-title').textContent = mode === 'view' ? '레시피 보기' : '레시피 수정';
+  cache = (await allRecs()).sort((a, b) => b.fixed - a.fixed);
+  $('l-q').value = '';
+  drawList();
+  go('s-list');
+}
+$('l-q').oninput = drawList;
+
+function drawList(){
+  const q = $('l-q').value.trim().toLowerCase();
+  const box = $('l-cards');
+  box.innerHTML = '';
+  const hits = cache.filter((r) =>
+    !q || (r.name + ' ' + r.ing + ' ' + r.step).toLowerCase().includes(q));
+  if (!hits.length){
+    box.innerHTML = '<div class="empty">' +
+      (cache.length ? '찾는 레시피가 없네요' : '아직 모아둔 레시피가 없습니다') + '</div>';
+    return;
+  }
+  for (const r of hits){
+    const b = document.createElement('button');
+    b.className = 'rc';
+    const th = document.createElement('span');
+    th.className = 'th';
+    if (r.photos && r.photos[0]){
+      const im = document.createElement('img');
+      im.src = URL.createObjectURL(r.photos[0]);
+      im.alt = ''; th.appendChild(im);
+    } else th.textContent = '🍚';
+    const tx = document.createElement('span');
+    tx.className = 'tx';
+    const nm = document.createElement('b'); nm.textContent = r.name || '(이름 없음)';
+    const sn = document.createElement('span');
+    sn.textContent = (r.ing || r.step || '').replace(/\n/g, ' · ').slice(0, 40) || ' ';
+    tx.append(nm, sn);
+    b.append(th, tx);
+    b.onclick = () => listMode === 'view' ? openView(r.id) : openEdit(r);
+    box.appendChild(b);
+  }
+}
+async function refreshCount(){
+  try {
+    const n = (await allRecs()).length;
+    $('cnt').textContent = n ? `모아둔 레시피 ${n}개` : '모아둔 레시피 펼쳐보기';
+  } catch (e) {}
+}
+
+/* ═══════════ 6. 상세 보기 ═══════════ */
+let viewing = null;
+async function openView(id){
+  const r = await getRec(id);
+  if (!r) return;
+  viewing = r;
+  $('v-name').textContent = r.name || '(이름 없음)';
+  $('v-meta').textContent = new Date(r.fixed).toLocaleDateString('ko-KR') + ' 에 정리함';
+  const gal = $('v-gal');
+  gal.innerHTML = '';
+  (r.photos || []).forEach((b) => {
+    const im = document.createElement('img');
+    im.src = URL.createObjectURL(b); im.alt = '';
+    gal.appendChild(im);
+  });
+  gal.style.display = (r.photos && r.photos.length) ? '' : 'none';
+
+  const secs = $('v-secs');
+  secs.innerHTML = '';
+  const put = (title, body, cls) => {
+    if (!body) return;
+    const d = document.createElement('div');
+    d.className = 'sec' + (cls ? ' ' + cls : '');
+    const h = document.createElement('h3'); h.textContent = title;
+    const p = document.createElement('div'); p.className = 'body'; p.textContent = body;
+    d.append(h, p); secs.appendChild(d);
+  };
+  put('재료', r.ing);
+  put('조리방법', r.step);
+  put('주의사항', r.note, 'note');
+  go('s-view');
+}
+$('v-edit').onclick = () => openEdit(viewing);
+$('v-del').onclick = async () => {
+  if (!viewing) return;
+  if (!confirm(`"${viewing.name}" 을(를) 지웁니다.\n되돌릴 수 없습니다.`)) return;
+  await delRec(viewing.id);
+  home();
+};
+
+/* ═══════════ 7. 사진으로 저장 ═══════════ */
+function wrap(ctx, text, maxW){
+  const out = [];
+  for (const para of String(text || '').split('\n')){
+    if (!para.trim()){ out.push(''); continue; }
+    let line = '';
+    for (const ch of para){
+      const t = line + ch;
+      if (ctx.measureText(t).width > maxW && line){ out.push(line); line = ch; }
+      else line = t;
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+$('v-img').onclick = async () => {
+  const r = viewing;
+  if (!r) return;
+  veil('그림 만드는 중', '잠시만요…', 20, false);
+  try {
+    await document.fonts.load('700 60px Gaegu');
+    await document.fonts.load('400 30px "Gowun Dodum"');
+  } catch (e) {}
+
+  const W = 1080, PAD = 70, BODY = '30px "Gowun Dodum", sans-serif';
+  const m = document.createElement('canvas').getContext('2d');
+
+  let photo = null;
+  if (r.photos && r.photos[0]){
+    try { photo = await createImageBitmap(r.photos[0]); } catch (e) {}
+  }
+
+  /* 먼저 높이를 재고 */
+  let h = PAD;
+  m.font = '700 68px Gaegu, cursive';
+  const titleLines = wrap(m, r.name || '레시피', W - PAD * 2);
+  h += titleLines.length * 82 + 14;
+  h += 46;                                   /* 날짜 */
+  let ph = 0;
+  if (photo){ ph = Math.min(560, (W - PAD * 2) * photo.height / photo.width); h += ph + 34; }
+  const blocks = [['재료', r.ing], ['조리방법', r.step], ['주의사항', r.note]].filter((b) => b[1]);
+  const laid = blocks.map(([t, body]) => {
+    m.font = BODY;
+    const ls = wrap(m, body, W - PAD * 2 - 8);
+    h += 62 + ls.length * 46 + 26;
+    return [t, ls];
+  });
+  h += PAD + 40;
+
+  /* 실제로 그린다 */
+  const c = document.createElement('canvas');
+  c.width = W; c.height = Math.round(h);
+  const g = c.getContext('2d');
+  g.fillStyle = '#FBF6EE'; g.fillRect(0, 0, W, h);
+  g.fillStyle = '#1F9C7A'; g.fillRect(0, 0, W, 12);
+
+  let y = PAD + 60;
+  g.fillStyle = '#33291F'; g.font = '700 68px Gaegu, cursive'; g.textAlign = 'left';
+  for (const l of titleLines){ g.fillText(l, PAD, y); y += 82; }
+  y += 4;
+  g.fillStyle = '#8B7A66'; g.font = '26px "Gowun Dodum", sans-serif';
+  g.fillText(new Date(r.fixed).toLocaleDateString('ko-KR'), PAD, y);
+  y += 40;
+
+  if (photo){
+    g.save();
+    const rr = 24, ww = W - PAD * 2;
+    g.beginPath(); g.roundRect(PAD, y, ww, ph, rr); g.clip();
+    g.drawImage(photo, PAD, y, ww, ph);
+    g.restore();
+    y += ph + 34;
+  }
+
+  for (const [t, ls] of laid){
+    g.font = '700 40px Gaegu, cursive';
+    const tw = g.measureText(t).width;
+    g.fillStyle = t === '주의사항' ? '#FBEBD6' : '#DDF0E9';
+    g.beginPath(); g.roundRect(PAD, y - 34, tw + 34, 50, 14); g.fill();
+    g.fillStyle = t === '주의사항' ? '#D9822B' : '#1F9C7A';
+    g.fillText(t, PAD + 17, y);
+    y += 62;
+    g.fillStyle = '#33291F'; g.font = BODY;
+    for (const l of ls){ g.fillText(l, PAD + 4, y); y += 46; }
+    y += 26;
+  }
+  g.fillStyle = '#8B7A66'; g.font = '700 30px Gaegu, cursive'; g.textAlign = 'right';
+  g.fillText('달자의 레시피', W - PAD, h - PAD + 8);
+
+  const blob = await new Promise((res) => c.toBlob(res, 'image/png'));
+  const fname = (r.name || '레시피').replace(/[\\/:*?"<>|]/g, '') + '.png';
+  const file = new File([blob], fname, { type: 'image/png' });
+  $('veil').hidden = true;
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })){
+    try { await navigator.share({ files: [file], title: r.name }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = fname; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+
+/* ═══════════ 8. 백업 ═══════════ */
+const b2s = (b) => new Promise((r) => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+async function s2b(s){ return await (await fetch(s)).blob(); }
+
+$('b-out').onclick = async () => {
+  const rs = await allRecs();
+  if (!rs.length){ alert('아직 저장된 레시피가 없습니다.'); return; }
+  veil('백업 만드는 중', `레시피 ${rs.length}개를 담고 있습니다…`, 30, false);
+  const out = [];
+  for (const r of rs){
+    const photos = [];
+    for (const p of (r.photos || [])) photos.push(await b2s(p));
+    out.push({ ...r, photos });
+  }
+  const blob = new Blob([JSON.stringify({ app: 'dalza-recipe', v: 1, list: out })],
+                        { type: 'application/json' });
+  const d = new Date();
+  const name = `레시피백업_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  $('veil').hidden = true;
+  const file = new File([blob], name, { type: 'application/json' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })){
+    try { await navigator.share({ files: [file], title: '레시피 백업' }); return; } catch (e) {}
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+
+$('b-in').onclick = () => $('in-file').click();
+$('in-file').onchange = async (e) => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data || !Array.isArray(data.list)) throw new Error('형식이 다릅니다');
+    if (!confirm(`레시피 ${data.list.length}개를 불러옵니다.\n같은 것이 있으면 덮어씁니다.`)) return;
+    veil('불러오는 중', '잠시만요…', 30, false);
+    for (const r of data.list){
+      const photos = [];
+      for (const p of (r.photos || [])){ try { photos.push(await s2b(p)); } catch (e2) {} }
+      await putRec({ ...r, photos });
+    }
+    $('veil').hidden = true;
+    alert('불러왔습니다.');
+    home();
+  } catch (err) {
+    $('veil').hidden = true;
+    alert('불러오지 못했습니다.\n' + err.message);
+  }
+};
+
+/* ═══════════ 9. 등록 방법 ═══════════ */
+$('p-photo').onclick = () => openEdit(null, true);
+$('p-hand').onclick = () => openEdit(null, false);
+
+/* ═══════════ 10. 시작 ═══════════ */
+/* 파일을 직접 열면(file://) 브라우저가 저장을 막는다 — 미리 알려준다 */
+db().catch(() => {
+  const w = document.createElement('div');
+  w.style.cssText = 'background:#C4453A;color:#fff;padding:12px 16px;font-size:13.5px;line-height:1.6;text-align:center';
+  w.innerHTML = '저장 공간을 열 수 없습니다.<br>파일을 직접 여는 방식(file://)에서는 저장이 안 됩니다. <b>인터넷 주소로 열어주세요.</b>';
+  document.body.prepend(w);
+});
+refreshCount();
+if (location.protocol.startsWith('http') && 'serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
